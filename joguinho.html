@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Desafios</title>
+    <!-- Adicionando o Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #350202;
+            color: white;
+        }
+
+        .bg-desire {
+            background-color: #00000083 !important;
+        }
+
+        .modal-content {
+            background-color: #000000 !important;
+        }
+
+        .btn-primary {
+            background-color: #2b0303 !important;
+            border: #2b0303 !important;
+        }
+
+        .bg-primary {
+            margin-right: 5px !important;
+        }
+
+        .bg-pink {
+            background-color: pink !important;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #desafioAtual {
+            font-size: 25px;
+            background-color: crimson;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Jogo</h1>
+        <div class="text-center">
+            <img src="logo.png" alt="Logo" class="logo" style="width: 200px;">
+        </div>
+        <button class="btn btn-primary d-block mx-auto mt-3" id="iniciarBtn">Iniciar Jogo</button>
+    </div>
+
+    <!-- Modal de adição de jogador -->
+    <div class="modal fade" id="adicionarJogadorModal" tabindex="-1" aria-labelledby="adicionarJogadorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adicionarJogadorModalLabel">Adicionar Jogador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" id="nomeJogador" placeholder="Nome do Jogador">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" value="M" id="sexoMasculino" name="sexo">
+                        <label class="form-check-label" for="sexoMasculino">
+                            Masculino
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" value="F" id="sexoFeminino" name="sexo">
+                        <label class="form-check-label" for="sexoFeminino">
+                            Feminino
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary" id="adicionarJogadorBtn"
+                        data-bs-dismiss="modal">Adicionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lista de jogadores
+        let jogadores = [];
+        // Lista de desafios
+        let desafios = [];
+        // Índice do jogador atual
+        let jogadorIndex = 0;
+
+        // Função para iniciar o jogo
+        function iniciarJogo() {
+            document.querySelector(".container").innerHTML = `
+            <div class="card mx-auto mt-5 bg-desire" style="max-width: 30rem;">
+                <div class="card-body">
+                    <h2 class="text-center text-white">Menu?</h2>
+                    <button class="btn btn-primary d-block mx-auto mt-3" data-bs-toggle="modal" data-bs-target="#adicionarJogadorModal">Adicionar Jogador</button>
+                    <div id="jogadoresContainer" class="card-container mt-3"></div>
+                    <button class="btn btn-primary mt-3" id="comecarBtn" style="display: none;">Começar</button>
+                </div>
+            </div>
+        `;
+
+            document.getElementById("comecarBtn").addEventListener("click", comecarJogo);
+        }
+
+        // Função para adicionar jogador
+        function adicionarJogador() {
+            let jogadorNome = document.getElementById("nomeJogador").value;
+            let jogadorSexo = '';
+            if (document.getElementById("sexoMasculino").checked) {
+                jogadorSexo = 'M';
+            } else if (document.getElementById("sexoFeminino").checked) {
+                jogadorSexo = 'F';
+            }
+            if (jogadorNome && (jogadorSexo === 'M' || jogadorSexo === 'F')) {
+                let corCartao = jogadorSexo === 'M' ? 'bg-primary' : 'bg-pink';
+                let jogadorCard = `
+                <div class="card text-white ${corCartao}">
+                    <div class="card-body center-content">
+                        <h5 class="card-title">${jogadorNome}</h5>
+                        <p class="card-text">Sexo: ${jogadorSexo === 'M' ? 'Masculino' : 'Feminino'}</p>
+                    </div>
+                </div>
+            `;
+                jogadores.push(jogadorCard);
+                document.getElementById("jogadoresContainer").innerHTML += jogadorCard;
+                if (jogadores.length >= 2) {
+                    document.getElementById("comecarBtn").style.display = "block";
+                }
+                document.getElementById("nomeJogador").value = '';
+                document.getElementById("adicionarJogadorModal").classList.remove('show');
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '';
+            }
+        }
+
+        // Função para começar o jogo
+        function comecarJogo() {
+            document.querySelector(".container").innerHTML = `
+            <div class="card mx-auto mt-5 bg-desire" style="max-width: 30rem;">
+                <div class="card-body center-content">
+                    <h2 class="text-center text-white">Jogo em Andamento</h2>
+                    <div id="desafioDisplay"></div>
+                    <button class="btn btn-primary mt-3" id="proxDesafioBtn">Próximo Desafio</button>
+                    <button class="btn btn-secondary mt-3" id="voltarMenuBtn">Voltar ao Menu</button>
+                </div>
+            </div>
+        `;
+
+            // Desafios
+            desafios = [
+                "Faça 20 polichinelos",
+                "Conte até 100 em voz alta",
+                "Escreva seu nome de trás para frente",
+                "Pule 10 vezes para cima e para baixo",
+                "Dê uma volta ao redor da sala"
+            ];
+
+            mostrarProximoDesafio();
+            document.getElementById("proxDesafioBtn").addEventListener("click", mostrarProximoDesafio);
+            document.getElementById("voltarMenuBtn").addEventListener("click", voltarMenu);
+        }
+
+        // Função para mostrar o próximo desafio
+        function mostrarProximoDesafio() {
+            let jogadorAtual = jogadores[jogadorIndex];
+            let desafioAtual = desafios[Math.floor(Math.random() * desafios.length)];
+
+            document.getElementById("desafioDisplay").innerHTML = `<p>${jogadorAtual} <br><span id="desafioAtual">${desafioAtual}</span></p>`;
+
+            // Incrementa o índice do jogador
+            jogadorIndex++;
+            // Se todos os jogadores já tiverem recebido um desafio, reinicia o ciclo
+            if (jogadorIndex === jogadores.length) {
+                jogadorIndex = 0;
+            }
+        }
+
+        // Função para voltar ao menu
+        function voltarMenu() {
+            iniciarJogo();
+        }
+
+        // Event listener para o botão de iniciar jogo
+        document.getElementById("iniciarBtn").addEventListener("click", iniciarJogo);
+        // Event listener para o botão de adicionar jogador
+        document.getElementById("adicionarJogadorBtn").addEventListener("click", function () {
+            adicionarJogador();
+            $('#adicionarJogadorModal').modal('hide');
+        });
+    </script>
+
+    <!-- Adicionando o Bootstrap 5 JavaScript (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
